@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gameplay Clustering</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Gameplay Clustering System 🎮</h1>
+
+        <form id="uploadForm" class="upload-form">
+            <input type="file" id="videoInput" class="file-input" required>
+            
+            <label class="checkbox-container">
+                <input type="checkbox" id="isLabeled"> Is this a labeled video?
+            </label>
+            
+            <input type="text" id="gameName" class="game-input" placeholder="Enter game name (if labeled)">
+            
+            <button type="submit" class="upload-btn">🚀 Upload Video</button>
+        </form>
+
+        <!-- Progress Bar -->
+        <div id="progressBarContainer">
+            <div id="progressBar"></div>
+        </div>
+        <p id="progressText"></p>
+
+        <!-- Result Section -->
+        <div id="resultContainer" class="result-box"></div>
+
+        <!-- Stats Section -->
+        <div id="statsContainer" class="stats-box"></div>
+
+        <!-- Cluster Visualization -->
+        <div id="clusterVisualization" class="visualization-box"></div>
+    </div>
+
+    <script src="GameplayClusteringUi.js"></script>
+
+</body>
+</html>
