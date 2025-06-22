@@ -1,45 +1,201 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gameplay Clustering</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gameplay Intelligence</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <div class="container">
-        <h1>Gameplay Clustering System 🎮</h1>
+  <!-- Animated Background -->
+  <div class="particle-background"></div>
+  <div class="radial-gradient"></div>
+  
+  <!-- Theme Toggle -->
+  <div class="theme-toggle">
+    <button id="themeSwitch" aria-label="Toggle theme">
+      <i class="fas fa-moon"></i>
+    </button>
+  </div>
 
-        <form id="uploadForm" class="upload-form">
-            <input type="file" id="videoInput" class="file-input" required>
-            
-            <label class="checkbox-container">
-                <input type="checkbox" id="isLabeled"> Is this a labeled video?
+  <!-- Main Container -->
+  <div class="ui-container">
+    <!-- Hero Section -->
+    <header class="hero-section">
+      <div class="logo-container">
+        <i class="fas fa-gamepad logo-icon"></i>
+        <h1 class="brand-title">Gameplay Intelligence</h1>
+      </div>
+      <p class="tagline">Upload your video. Watch AI discover gameplay clusters with stunning visuals.</p>
+      <div class="animated-wave"></div>
+    </header>
+
+    <!-- Upload Section -->
+    <section class="upload-section">
+      <div class="glass-card">
+        <form id="uploadForm" class="upload-form" autocomplete="off">
+          <div class="drag-drop-area" id="dropZone" tabindex="0" aria-label="Drag and drop your video file here or use the upload button">
+            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+            <p id="dropZoneText">Drag & drop your video file here</p>
+            <span class="file-type">MP4, MOV, AVI (Max 2GB)</span>
+            <label for="videoInput" class="upload-btn-browse">
+              <i class="fas fa-folder-open"></i> Browse
             </label>
+            <input type="file" id="videoInput" class="file-input" accept="video/*" required style="display:none" />
+            <span id="selectedFileName" class="selected-file"></span>
+          </div>
+          
+          <div class="form-options">
+            <div class="toggle-group">
+              <label class="toggle-switch">
+                <input type="checkbox" id="isLabeled" />
+                <span class="slider"></span>
+              </label>
+              <span>Video contains labels</span>
+            </div>
             
-            <input type="text" id="gameName" class="game-input" placeholder="Enter game name (if labeled)">
-            
-            <button type="submit" class="upload-btn">🚀 Upload Video</button>
+            <div class="input-group">
+              <label for="gameName"><i class="fas fa-tag"></i> Game Name</label>
+              <input type="text" id="gameName" placeholder="Enter game name (optional)" />
+            </div>
+          </div>
+          
+          <button type="submit" class="primary-btn">
+            <span class="btn-content">
+              <i class="fas fa-rocket"></i>
+              <span>Upload & Analyze</span>
+            </span>
+            <div class="btn-loader hidden">
+              <div class="loader-dot"></div>
+              <div class="loader-dot"></div>
+              <div class="loader-dot"></div>
+            </div>
+          </button>
         </form>
-
-        <!-- Progress Bar -->
-        <div id="progressBarContainer">
-            <div id="progressBar"></div>
+      </div>
+      
+      <!-- Progress Indicator -->
+      <div class="progress-container glass-card">
+        <div class="progress-header">
+          <h3>Processing Status</h3>
+          <span id="progressPercent">0%</span>
         </div>
-        <p id="progressText"></p>
+        <div class="progress-track">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <p id="progressText">Awaiting your upload...</p>
+      </div>
+    </section>
 
-        <!-- Result Section -->
-        <div id="resultContainer" class="result-box"></div>
+    <!-- Results Section -->
+    <section class="results-section">
+      <div id="resultContainer" class="result-card glass-card hidden">
+        <div class="card-header">
+          <i class="fas fa-brain"></i>
+          <h2>Analysis Result</h2>
+        </div>
+        <div id="resultBox" class="card-content">
+          <div class="placeholder-content">
+            <i class="fas fa-microscope"></i>
+            <p>Video analysis pending</p>
+          </div>
+        </div>
+      </div>
 
-        <!-- Stats Section -->
-        <div id="statsContainer" class="stats-box"></div>
+      <div id="statsContainer" class="result-card glass-card hidden">
+        <div class="card-header">
+          <i class="fas fa-chart-bar"></i>
+          <h2>Gameplay Stats</h2>
+        </div>
+        <div id="statsBox" class="card-content">
+          <div class="placeholder-content">
+            <i class="fas fa-calculator"></i>
+            <p>Statistics will appear here</p>
+          </div>
+        </div>
+      </div>
 
-        <!-- Cluster Visualization -->
-        <div id="clusterVisualization" class="visualization-box"></div>
-    </div>
+      <div id="visualizationContainer" class="result-card glass-card hidden">
+        <div class="card-header">
+          <i class="fas fa-project-diagram"></i>
+          <h2>Cluster Visualization</h2>
+        </div>
+        <div class="card-content">
+          <div class="image-container">
+            <img id="clusterImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='320' viewBox='0 0 600 320'%3E%3Crect width='100%25' height='100%25' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%23999'%3ECluster Visualization%3C/text%3E%3C/svg%3E" alt="Cluster preview" />
+            <div class="visualization-controls">
+              <button class="icon-btn"><i class="fas fa-expand"></i></button>
+              <button class="icon-btn"><i class="fas fa-download"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 
-    <script src="GameplayClusteringUi.js"></script>
+  <!-- Footer -->
+  <footer class="footer">
+    <p>Built with <i class="fas fa-heart"></i> by IT Department Boys — 2025 | Powered by Creativity and Passion</p>
+  </footer>
 
+  <script>
+    // Drag & Drop and Browse logic for robust upload
+    const dropZone = document.getElementById('dropZone');
+    const videoInput = document.getElementById('videoInput');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const dropZoneText = document.getElementById('dropZoneText');
+
+    // Open file dialog when clicking Browse
+    document.querySelector('.upload-btn-browse').addEventListener('click', function(e) {
+      e.preventDefault();
+      videoInput.click();
+    });
+
+    // Show file name when selected
+    videoInput.addEventListener('change', function() {
+      if (videoInput.files.length) {
+        selectedFileName.textContent = videoInput.files[0].name;
+        dropZoneText.textContent = "File selected:";
+      } else {
+        selectedFileName.textContent = "";
+        dropZoneText.textContent = "Drag & drop your video file here";
+      }
+    });
+
+    // Drag & drop logic
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add('highlight');
+      }, false);
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('highlight');
+      }, false);
+    });
+    dropZone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.dataTransfer.files.length) {
+        const file = e.dataTransfer.files[0];
+        if (file.type.startsWith('video/')) {
+          videoInput.files = e.dataTransfer.files;
+          selectedFileName.textContent = file.name;
+          dropZoneText.textContent = "File selected:";
+        } else {
+          selectedFileName.textContent = "";
+          dropZoneText.textContent = "Invalid file type!";
+        }
+      }
+    });
+  </script>
+  <script src="GameplayClusteringUi.js"></script>
 </body>
 </html>
