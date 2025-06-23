@@ -21,6 +21,7 @@ const visualizationContainer = document.getElementById('visualizationContainer')
 const resultBox = document.getElementById('resultBox');
 const statsBox = document.getElementById('statsBox');
 const clusterImage = document.getElementById('clusterImage');
+const resetClustersBtn = document.getElementById('resetClustersBtn');
 
 // ===================== Theme Switching =====================
 function initTheme() {
@@ -98,6 +99,19 @@ function initDragDrop() {
   });
 }
 
+// ========== Enable/disable game name input based on label toggle ==========
+function initGameNameToggle() {
+  const isLabeledCheckbox = document.getElementById('isLabeled');
+  const gameNameInput = document.getElementById('gameName');
+  if (!isLabeledCheckbox || !gameNameInput) return;
+  // Disable on load
+  gameNameInput.disabled = true;
+  isLabeledCheckbox.addEventListener('change', function() {
+    gameNameInput.disabled = !this.checked;
+    if (!this.checked) gameNameInput.value = '';
+  });
+}
+
 // ===================== Upload Logic =====================
 uploadForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -163,6 +177,32 @@ function simulateProgress() {
 }
 
 // ===================== Result Handling =====================
+async function fetchAndShowAllClusterStats() {
+  try {
+    const response = await fetch('http://localhost:8000/stats');
+    const stats = await response.json();
+    if (response.ok && stats && Object.keys(stats).length > 0) {
+      statsBox.innerHTML = `
+        <div class="stats-grid">
+          ${Object.entries(stats).map(([label, frames], i) => `
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="cluster-badge">Cluster ${i + 1}</span>
+                <span class="frames-count">${frames} frames</span>
+              </div>
+              <h3>${label}</h3>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    } else {
+      statsBox.innerHTML = `<p>No cluster statistics available.</p>`;
+    }
+  } catch (err) {
+    statsBox.innerHTML = `<p>Failed to load cluster statistics.</p>`;
+  }
+}
+
 function showResult(data) {
   // Animate cards in sequence
   setTimeout(() => {
@@ -193,36 +233,21 @@ function showResult(data) {
       <i class="fas fa-shapes"></i>
       <div>
         <h3>${data.clusters ? data.clusters.length : 0} Cluster(s) Detected</h3>
-        <p>Pattern recognition powered by AI</p>
       </div>
     </div>
   `;
 
-  // Stats
-  if (data.clusters && data.clusters.length > 0) {
-    statsBox.innerHTML = `
-      <div class="stats-grid">
-        ${data.clusters.map((c, i) => `
-          <div class="stat-card">
-            <div class="stat-header">
-              <span class="cluster-badge">Cluster ${i + 1}</span>
-              <span class="frames-count">${c.frames} frames</span>
-            </div>
-            <h3>${c.label}</h3>
-            <div class="progress-track">
-              <div class="progress-fill" style="width: ${(c.frames / (data.duration || 1)) * 100}%"></div>
-            </div>
-          </div>
-        `).join("")}
-      </div>
-    `;
-  } else {
-    statsBox.innerHTML = `<p>No cluster statistics available.</p>`;
-  }
+  fetchAndShowAllClusterStats();
 
-  // Visualization
+  // Visualization 
   if (data.visualization) {
-    clusterImage.src = data.visualization;
+    let imgUrl = data.visualization;
+    // If the path is relative, prepend the backend URL
+    if (imgUrl.startsWith('/static/')) {
+      imgUrl = 'http://localhost:8000' + imgUrl;
+    }
+    // Add cache-busting query param
+    clusterImage.src = imgUrl + '?t=' + Date.now();
   } else {
     clusterImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='320' viewBox='0 0 600 320'%3E%3Crect width='100%25' height='100%25' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%23999'%3ECluster Visualization%3C/text%3E%3C/svg%3E";
   }
@@ -308,6 +333,54 @@ document.addEventListener('click', function(e) {
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initDragDrop();
+  initGameNameToggle();
   themeSwitch.addEventListener('click', toggleTheme);
   // File input change is already handled in initDragDrop
+
+  // Reset clusters button
+  if (resetClustersBtn) {
+    resetClustersBtn.addEventListener('click', async () => {
+      showConfirmDialog('Are you sure you want to reset all clusters? This cannot be undone.', async () => {
+        resetClustersBtn.disabled = true;
+        resetClustersBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+        try {
+          const response = await fetch('http://localhost:8000/reset_clusters', { method: 'POST' });
+          const data = await response.json();
+          if (response.ok && data.success) {
+            showToast('All clusters have been reset.', 'success');
+            fetchAndShowAllClusterStats && fetchAndShowAllClusterStats();
+          } else {
+            showToast(data.message || 'Failed to reset clusters.', 'error');
+          }
+        } catch (err) {
+          showToast('Server error. Try again.', 'error');
+        }
+        resetClustersBtn.disabled = false;
+        resetClustersBtn.innerHTML = '<i class="fas fa-trash"></i> Reset All Clusters';
+      });
+    });
+  }
 });
+
+// Use a modal instead of confirm for better UX and to avoid eslint error
+function showConfirmDialog(message, onConfirm) {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal">
+      <p>${message}</p>
+      <div class="modal-actions">
+        <button class="modal-btn modal-confirm">Yes</button>
+        <button class="modal-btn modal-cancel">Cancel</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.querySelector('.modal-confirm').onclick = () => {
+    document.body.removeChild(modal);
+    onConfirm();
+  };
+  modal.querySelector('.modal-cancel').onclick = () => {
+    document.body.removeChild(modal);
+  };
+}

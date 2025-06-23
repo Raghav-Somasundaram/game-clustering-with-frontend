@@ -786,3 +786,87 @@ input[type="checkbox"], input[type="radio"] {
     }
   }
 }
+
+/* ===================== 22. Reset Button & Modal Confirmation ===================== */
+.danger-btn {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.7em 1.6em;
+  font-size: 1.08em;
+  font-weight: 600;
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-fast);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  margin: 1.2em auto 0 auto;
+  outline: none;
+}
+.danger-btn:hover, .danger-btn:focus {
+  background: #ff1a0a;
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px) scale(1.04);
+}
+.danger-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Modal styles for confirmation */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30,30,40,0.32);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s;
+}
+.modal {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 2.2em 2.5em 1.5em 2.5em;
+  text-align: center;
+  min-width: 320px;
+  max-width: 90vw;
+  animation: popIn 0.22s cubic-bezier(.4,1.6,.6,1);
+}
+.modal p {
+  font-size: 1.13em;
+  margin-bottom: 1.5em;
+  color: var(--text);
+}
+.modal-actions {
+  display: flex;
+  gap: 1.2em;
+  justify-content: center;
+}
+.modal-btn {
+  padding: 0.6em 1.5em;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.modal-confirm {
+  background: var(--danger);
+  color: #fff;
+}
+.modal-cancel {
+  background: #e0e7ff;
+  color: #1d1d1f;
+}
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes popIn {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}

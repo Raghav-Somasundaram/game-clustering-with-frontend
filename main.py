@@ -228,3 +228,15 @@ async def upload_video(
                 "clusters": [{"label": best_label, "frames": len(frames)}],
                 "visualization": f"/{img_url}" if img_url else None
             }
+
+@app.post("/reset_clusters")
+async def reset_clusters():
+    global clusters, cluster_labels, cluster_features, faiss_index
+    clusters = {}
+    cluster_labels = []
+    cluster_features = []
+    faiss_index = None
+    save_clusters()
+    if os.path.exists(FAISS_FILE):
+        os.remove(FAISS_FILE)
+    return JSONResponse(content={"success": True, "message": "All clusters have been reset."})
